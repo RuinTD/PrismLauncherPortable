@@ -1,0 +1,37 @@
+{
+  "name": "prismlauncherportable",
+  "private": true,
+  "type": "module",
+  "module": "index.ts",
+  "scripts": {
+    "build": "bun src/build.ts",
+    "update": "bun src/update.ts",
+    "fileinfo": "bun src/fileinfo.ts",
+    "icons": "bun src/icons.ts",
+    "fmt": "bun fmt",
+    "typecheck": "bun check"
+  },
+  "dependencies": {
+    "@octokit/rest": "^22.0.1",
+    "@zip.js/zip.js": "^2.25.0",
+    "chalk": "^6.0.1",
+    "dax": "^0.50.2",
+    "es-toolkit": "^1.53.2",
+    "ini": "^7.0.0",
+    "klaw": "^4.1.0",
+    "memoize": "^11.0.0",
+    "pretty-bytes": "^7.2.0",
+    "semver": "^7.8.6",
+    "tempy": "^3.2.0",
+    "valibot": "^1.5.0"
+  },
+  "devDependencies": {
+    "@tsconfig/bun": "^1.0.12",
+    "@types/bun": "latest",
+    "@types/klaw": "^3.0.8",
+    "@types/semver": "^7.8.0"
+  },
+  "peerDependencies": {
+    "typescript": "^7.0.2"
+  }
+}

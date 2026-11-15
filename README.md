@@ -1,4 +1,5 @@
 # Prism Launcher Portable
+
 A portable re-packaging of [Prism Launcher][prism], made for [PortableApps.com][PA]
 
 [![](https://img.shields.io/github/v/release/RuiNtD/PrismLauncherPortable?include_prereleases)][releases]

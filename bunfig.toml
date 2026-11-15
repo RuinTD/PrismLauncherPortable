@@ -1,0 +1,4 @@
+[fmt]
+sortImports = true
+sortPackageJson = true
+jsdoc = true

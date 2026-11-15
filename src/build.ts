@@ -1,9 +1,11 @@
-import $ from "@david/dax";
-import { ZipReader, Uint8ArrayWriter, BlobReader } from "@zip-js/zip-js";
-import { appPath } from "./const.ts";
+import assert from "node:assert";
+
+import { BlobReader, Uint8ArrayWriter, ZipReader } from "@zip.js/zip.js";
+import $ from "dax";
+
 import { readAppInfo } from "./appinfo.ts";
-import { getLatestPrism, GHRelease } from "./prism.ts";
-import { assert } from "@std/assert";
+import { appPath } from "./const.ts";
+import { getLatestPrism, type GHRelease } from "./prism.ts";
 
 interface Download {
   dir: string;
@@ -34,14 +36,14 @@ async function downloadPrism(dir: string, url: string) {
     const zipReader = new ZipReader(new BlobReader(resp));
     const entries = await zipReader.getEntries();
     for (const entry of entries) {
-      if (!entry.getData) continue;
       if (entry.filename == "prismlauncher_updater.exe") continue;
 
-      const uint8 = await entry.getData(new Uint8ArrayWriter());
       const filePath = path.join(entry.filename);
-
       if (entry.directory) await filePath.mkdir();
-      else await filePath.write(uint8);
+      else {
+        const uint8 = await entry.getData(new Uint8ArrayWriter());
+        await filePath.write(uint8);
+      }
     }
   });
 }

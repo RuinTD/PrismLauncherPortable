@@ -1,4 +1,6 @@
-import { Octokit, RestEndpointMethodTypes } from "@octokit/rest";
+import assert from "node:assert";
+
+import { Octokit, type RestEndpointMethodTypes } from "@octokit/rest";
 
 const octokit = new Octokit();
 
@@ -25,6 +27,7 @@ export async function getLatestPrism(prerelease = false): Promise<GHRelease> {
       per_page: 1,
     });
     const release = releases[0];
+    assert(release);
     preCache = release;
     return release;
   }

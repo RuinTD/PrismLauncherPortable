@@ -1,8 +1,10 @@
-import $ from "@david/dax";
-import { format as formatBytes } from "@std/fmt/bytes";
-import { crypto } from "@std/crypto";
-import { encodeHex } from "@std/encoding/hex";
-import { walk } from "@std/fs";
+import assert from "node:assert";
+import crypto from "node:crypto";
+
+import $ from "dax";
+import klaw from "klaw";
+import prettyBytes from "pretty-bytes";
+import { temporaryDirectory } from "tempy";
 
 const dir = (
   await Promise.all(
@@ -11,36 +13,37 @@ const dir = (
       .map(async (v) => ({
         path: v,
         time: (await v.stat())?.mtime?.valueOf() || 0,
-      }))
+      })),
   )
 )
   .sort((a, b) => b.time - a.time)
   .map((v) => v.path);
 
-const file =
-  dir[
-    await $.select({
-      message: "Pick a file",
-      options: dir.map((v) => v.basename()),
-    })
-  ];
+const selection = await $.select({
+  message: "Pick a file",
+  options: dir.map((v) => v.basename()),
+});
+const file = dir[selection.index];
+assert(file);
 
 function formatSize(size: number): string {
-  return formatBytes(size, {
+  return prettyBytes(size, {
     binary: true,
     minimumFractionDigits: 1,
     maximumFractionDigits: 1,
-  })
-    .replace(" ", "")
-    .replace("i", "");
+    space: false,
+  }).replace("i", "");
 }
 
-const downloadSize = formatSize((await file.stat())?.size || 0);
-const hash = encodeHex(
-  await crypto.subtle.digest("MD5", await file.readBytes())
-);
+const stat = await file.stat();
+assert(stat);
+const downloadSize = formatSize(stat.size);
+const hash = crypto
+  .createHash("md5")
+  .update(await file.readBytes())
+  .digest("hex");
 
-const tempDir = $.path(await Deno.makeTempDir({ prefix: "prism-" }));
+const tempDir = $.path(temporaryDirectory());
 for (const type of ["unload", "unhandledrejection"])
   globalThis.addEventListener(type, () => {
     tempDir.ensureRemoveSync({ recursive: true });
@@ -49,15 +52,13 @@ for (const type of ["unload", "unhandledrejection"])
 await $`${file} /DESTINATION=${tempDir}\\`;
 
 let tempSize = 0;
-for await (const file of walk(tempDir.toString())) {
-  if (file.isDirectory) continue;
-  const path = $.path(file.path);
-  const stat = await path.stat();
-  tempSize += stat?.size || 0;
+for await (const { stats } of klaw(tempDir.toString())) {
+  if (stats.isDirectory()) continue;
+  tempSize += stats.size;
 }
 const installedSize = formatSize(tempSize);
 
 await tempDir.ensureRemove({ recursive: true });
 
-$.log(`[${downloadSize} download / ${installedSize} installed]
+console.log(`[${downloadSize} download / ${installedSize} installed]
 (MD5: ${hash})`);

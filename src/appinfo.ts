@@ -1,6 +1,7 @@
-import { appPath } from "./const.ts";
 import * as ini from "ini";
-import * as v from "@valibot/valibot";
+import * as v from "valibot";
+
+import { appPath } from "./const.ts";
 
 const AppInfoIni = v.looseObject({
   Version: v.looseObject({
@@ -19,5 +20,5 @@ export async function readAppInfo(): Promise<AppInfoIni> {
 }
 
 export async function writeAppInfo(appinfo: AppInfoIni) {
-  await iniPath.writeText(ini.stringify(appinfo));
+  await iniPath.write(ini.stringify(appinfo));
 }
