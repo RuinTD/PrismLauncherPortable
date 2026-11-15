@@ -14,7 +14,7 @@ interface Download {
 
 async function cleanPrism() {
   for await (const file of appPath.readDir()) {
-    if (!file.isDirectory) continue;
+    if (!file.isDirectory()) continue;
     if (file.name == "AppInfo") continue;
     if (file.name == "DefaultData") continue;
 
